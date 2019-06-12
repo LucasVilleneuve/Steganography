@@ -10,18 +10,56 @@ public class Steganography
 {
     private int offset = 32;
 
+    /**
+     * Encode a text message in a file.
+     * @param imageFile File to encode
+     * @param message Text message to conceal in imageFile
+     * @return If the encode failed
+     * @throws IllegalArgumentException if <code>imageFile</code> is
+     *      * <code>null</code>.
+     * @throws IOException if an errors occurs during encoding
+     */
+    public boolean encode(File imageFile, String message) throws IllegalArgumentException, IOException
+    {
+        if (imageFile == null)
+            throw new IllegalArgumentException("File == null!");
+
+        BufferedImage bufferedImage = getImageBuffer(imageFile);
+
+        return encodeBufferedImage(bufferedImage, imageFile.getName(), message);
+    }
+
+    /**
+     * Encode a text message in a file.
+     * @param imagePath Path to the file to encode
+     * @param message Text message to conceal in imageFile
+     * @return If the encode failed
+     * @throws IOException if an errors occurs during encoding
+     */
     public boolean encode(String imagePath, String message) throws IOException
     {
-        BufferedImage image = createImageCopyWithUserSpace(getImageBuffer(imagePath));
+        BufferedImage bufferedImage = getImageBuffer(imagePath);
+
+        return encodeBufferedImage(bufferedImage, imagePath, message);
+    }
+
+    private boolean encodeBufferedImage(BufferedImage bufferedImage, String imagePath, String message)
+    {
+        BufferedImage image = createImageCopyWithUserSpace(bufferedImage);
 
         addHiddenTextToImage(image, message);
         return (saveImage(image, imagePath));
     }
 
     private BufferedImage getImageBuffer(String imagePath) throws IOException {
+        File fileImage = new File(imagePath);
+        return getImageBuffer(fileImage);
+    }
+
+    private BufferedImage getImageBuffer(File imageFile) throws IOException {
         BufferedImage buffer;
 
-        buffer = ImageIO.read(new File(imagePath));
+        buffer = ImageIO.read(imageFile);
         return (buffer);
     }
 
@@ -95,13 +133,44 @@ public class Steganography
         return (false);
     }
 
-    public String decode(String imagePath)
+    /**
+     * Decodes a text message in a file.
+     * @param imagePath Path to the file to decode
+     * @return The decoded text message
+     * @throws IOException if an errors occurs during decoding
+     */
+    public String decode(String imagePath) throws IOException
     {
+        BufferedImage bufferedImage = getImageBuffer(imagePath);
+
+        return decodeBufferedImage(bufferedImage);
+    }
+
+    /**
+     * Decodes a text message in a file.
+     * @param imageFile File to decode
+     * @return The decoded text message
+     * @throws IllegalArgumentException if <code>imageFile</code> is
+     *      * <code>null</code>.
+     * @throws IOException if an errors occurs during decoding
+     */
+    public String decode(File imageFile) throws IOException
+    {
+        if (imageFile == null)
+            throw new IllegalArgumentException("File == null!");
+
+        BufferedImage bufferedImage = getImageBuffer(imageFile);
+
+        return decodeBufferedImage(bufferedImage);
+    }
+
+    private String decodeBufferedImage(BufferedImage bufferedImage)
+    {
+        BufferedImage image = createImageCopyWithUserSpace(bufferedImage);
+
         byte[] message;
 
         try {
-            BufferedImage image = createImageCopyWithUserSpace(getImageBuffer(imagePath));
-
             message = decodeText(getImageBytes(image));
             return (new String(message));
         } catch (Exception e) {
