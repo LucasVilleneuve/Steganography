@@ -14,7 +14,10 @@ public class FilePicker
 
         String fileName = chooser.getFile();
         if (fileName == null)
+        {
+            chooser.dispose();
             return null;
+        }
 
         String filePath = chooser.getDirectory() + fileName;
 
