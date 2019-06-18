@@ -9,6 +9,7 @@ import java.io.IOException;
 public class Steganography
 {
     private int offset = 32;
+    private String lastSavedImageName = null;
 
     /**
      * Encode a text message in a file.
@@ -123,7 +124,8 @@ public class Steganography
     {
         String fileName = imagePath.substring(0, imagePath.lastIndexOf('.'));
         String extension = "png";
-        File file = new File(fileName + "Steg." + extension);
+        lastSavedImageName = fileName + "Steg" + "." + extension;
+        File file = new File(lastSavedImageName);
 
         try {
             return (ImageIO.write(image, extension, file));
@@ -195,5 +197,10 @@ public class Steganography
                 result[textByte] = (byte)((result[textByte] << 1) | (image[offset] & 1));
         }
         return (result);
+    }
+
+    public String getLastSavedImageName()
+    {
+        return lastSavedImageName;
     }
 }
